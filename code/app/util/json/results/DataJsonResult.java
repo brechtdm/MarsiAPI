@@ -3,25 +3,36 @@ package util.json.results;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import util.json.ResultCode;
 
 public class DataJsonResult extends AbstractJsonResult {
 
     private final String kind;
-    private ObjectNode self;
-    private ObjectNode[] dataItems;
+    private final String message;
+    private final ObjectNode self;
+    private final ObjectNode[] dataItems;
 
-    private DataJsonResult(int code, String kind) {
+    public DataJsonResult(ResultCode code, String message) {
+        super(code);
+        this.kind = null;
+        this.message = message;
+        this.self = null;
+        this.dataItems = null;
+    }
+
+    public DataJsonResult(ResultCode code, String kind, ObjectNode self) {
         super(code);
         this.kind = kind;
-    }
-
-    public DataJsonResult(int code, String kind, ObjectNode self) {
-        this(code, kind);
+        this.message = null;
         this.self = self;
+        this.dataItems = null;
     }
 
-    public DataJsonResult(int code, String kind, ObjectNode[] dataItems) {
-        this(code, kind);
+    public DataJsonResult(ResultCode code, String kind, ObjectNode[] dataItems) {
+        super(code);
+        this.kind = kind;
+        this.message = null;
+        this.self = null;
         this.dataItems = dataItems;
     }
 
@@ -30,11 +41,15 @@ public class DataJsonResult extends AbstractJsonResult {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode dataObject = mapper.createObjectNode();
-        dataObject.put("kind", kind);
+        if(message != null) {
+            dataObject.put("message", message);
+        }
         // Add self if not null, otherwise add dataItems
         if(self != null) {
+            dataObject.put("kind", kind);
             dataObject.set("self", self);
         } else if(dataItems != null) {
+            dataObject.put("kind", kind);
             ArrayNode dataItemsArray = mapper.createArrayNode();
             for (ObjectNode dataItem: dataItems) {
                 dataItemsArray.add(dataItem);

@@ -3,6 +3,8 @@ package util.json.results;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import util.json.ResultCode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +13,7 @@ public class ErrorJsonResult extends AbstractJsonResult {
     private final String errorCode;
     private List<SubError> subErrorList;
 
-    public ErrorJsonResult(int code, String errorCode) {
+    public ErrorJsonResult(ResultCode code, String errorCode) {
         super(code);
         this.errorCode = errorCode;
         subErrorList = new ArrayList<>();
