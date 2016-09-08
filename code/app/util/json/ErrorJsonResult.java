@@ -5,23 +5,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.List;
-import util.ConfigurationHelper;
 
-public class ErrorJsonResult implements JsonResult {
+public class ErrorJsonResult extends AbstractJsonResult {
 
-    private final String apiVersion;
-    private final int code;
     private final String message;
     private String extendedHelper;
     private String sendReport;
     private List<SubError> subErrorList;
 
     public ErrorJsonResult(int code, String message) {
-        this.code = code;
+        super(code);
         this.message = message;
         subErrorList = new ArrayList<>();
-        // API version is defined in application.conf
-        apiVersion = ConfigurationHelper.getConfigurationString("app.version");
     }
 
     public void setExtendedHelper(String extendedHelper) {

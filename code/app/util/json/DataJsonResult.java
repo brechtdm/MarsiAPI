@@ -3,21 +3,16 @@ package util.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import util.ConfigurationHelper;
 
-public class DataJsonResult implements JsonResult {
+public class DataJsonResult extends AbstractJsonResult {
 
-    private final String apiVersion;
-    private final int code;
     private final String kind;
     private ObjectNode self;
     private ObjectNode[] dataItems;
 
     private DataJsonResult(int code, String kind) {
-        this.code = code;
+        super(code);
         this.kind = kind;
-        // API version is defined in application.conf
-        apiVersion = ConfigurationHelper.getConfigurationString("app.version");
     }
 
     public DataJsonResult(int code, String kind, ObjectNode self) {
