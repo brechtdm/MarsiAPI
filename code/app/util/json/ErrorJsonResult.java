@@ -65,15 +65,15 @@ public class ErrorJsonResult extends AbstractJsonResult {
     public ObjectNode toJson() {
         ObjectMapper mapper = new ObjectMapper();
 
-        ObjectNode errorData = mapper.createObjectNode();
-        errorData.put("message", message);
+        ObjectNode errorObject = mapper.createObjectNode();
+        errorObject.put("message", message);
         // Add extendedHelper only if it is filled in
         if(extendedHelper != null && !extendedHelper.isEmpty()) {
-            errorData.put("extendedHelper", extendedHelper);
+            errorObject.put("extendedHelper", extendedHelper);
         }
         // Add sendReport only if it is filled in
         if(sendReport != null && !sendReport.isEmpty()) {
-            errorData.put("sendReport", sendReport);
+            errorObject.put("sendReport", sendReport);
         }
         // Create sub-error list
         if(subErrorList.size() > 0) {
@@ -81,13 +81,11 @@ public class ErrorJsonResult extends AbstractJsonResult {
             for (SubError subError : subErrorList) {
                 subErrorData.add(subError.toJson());
             }
-            errorData.set("errors", subErrorData);
+            errorObject.set("errors", subErrorData);
         }
         // Create root
-        ObjectNode errorObject = mapper.createObjectNode();
-        errorObject.put("apiVersion", apiVersion);
-        errorObject.put("code", code);
-        errorObject.set("errors", errorData);
+        ObjectNode resultObject = super.toJson();
+        resultObject.set("errors", errorObject);
 
         return errorObject;
     }

@@ -1,6 +1,8 @@
 package util.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import util.ConfigurationHelper;
 
 public abstract class AbstractJsonResult {
@@ -14,5 +16,13 @@ public abstract class AbstractJsonResult {
         apiVersion = ConfigurationHelper.getConfigurationString("app.version");
     }
 
-    public abstract JsonNode toJson();
+    public ObjectNode toJson() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode resultObject = mapper.createObjectNode();
+        resultObject.put("apiVersion", apiVersion);
+        resultObject.put("code", code);
+
+        return resultObject;
+    }
 }

@@ -29,24 +29,22 @@ public class DataJsonResult extends AbstractJsonResult {
     public ObjectNode toJson() {
         ObjectMapper mapper = new ObjectMapper();
 
-        ObjectNode itemData = mapper.createObjectNode();
-        itemData.put("kind", kind);
+        ObjectNode dataObject = mapper.createObjectNode();
+        dataObject.put("kind", kind);
         // Add self if not null, otherwise add dataItems
         if(self != null) {
-            itemData.set("self", self);
+            dataObject.set("self", self);
         } else if(dataItems != null) {
             ArrayNode dataItemsArray = mapper.createArrayNode();
             for (ObjectNode dataItem: dataItems) {
                 dataItemsArray.add(dataItem);
             }
-            itemData.set("items", dataItemsArray);
+            dataObject.set("items", dataItemsArray);
         }
         // Create root
-        ObjectNode objectData = mapper.createObjectNode();
-        objectData.put("apiVersion", apiVersion);
-        objectData.put("code", code);
-        objectData.set("data", objectData);
+        ObjectNode resultObject = super.toJson();
+        resultObject.set("data", dataObject);
 
-        return objectData;
+        return resultObject;
     }
 }
