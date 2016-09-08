@@ -9,22 +9,12 @@ import java.util.List;
 public class ErrorJsonResult extends AbstractJsonResult {
 
     private final String message;
-    private String extendedHelper;
-    private String sendReport;
     private List<SubError> subErrorList;
 
     public ErrorJsonResult(int code, String message) {
         super(code);
         this.message = message;
         subErrorList = new ArrayList<>();
-    }
-
-    public void setExtendedHelper(String extendedHelper) {
-        this.extendedHelper = extendedHelper;
-    }
-
-    public void setSendReport(String sendReport) {
-        this.sendReport = sendReport;
     }
 
     public void addSubError(String error) {
@@ -67,14 +57,6 @@ public class ErrorJsonResult extends AbstractJsonResult {
 
         ObjectNode errorObject = mapper.createObjectNode();
         errorObject.put("message", message);
-        // Add extendedHelper only if it is filled in
-        if(extendedHelper != null && !extendedHelper.isEmpty()) {
-            errorObject.put("extendedHelper", extendedHelper);
-        }
-        // Add sendReport only if it is filled in
-        if(sendReport != null && !sendReport.isEmpty()) {
-            errorObject.put("sendReport", sendReport);
-        }
         // Create sub-error list
         if(subErrorList.size() > 0) {
             ArrayNode subErrorData = mapper.createArrayNode();
