@@ -1,7 +1,10 @@
 package util.json;
 
-/**
- * Created by brecht on 9/8/16.
- */
-public class DataJsonResult extends AbstractJsonResult {
+import com.fasterxml.jackson.databind.JsonNode;
+
+public class DataJsonResult implements JsonResult {
+    @Override
+    public JsonNode toJson() {
+        return null;
+    }
 }
