@@ -1,4 +1,4 @@
-package util.json;
+package util.json.results;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
