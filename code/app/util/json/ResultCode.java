@@ -1,7 +1,7 @@
 package util.json;
 
 /**
- * Created by brecht on 9/8/16.
+ * See: https://tools.ietf.org/html/rfc2616
  */
 public enum ResultCode {
 
