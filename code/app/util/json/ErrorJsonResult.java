@@ -8,44 +8,55 @@ import java.util.List;
 
 public class ErrorJsonResult extends AbstractJsonResult {
 
-    private final String message;
+    private final String errorCode;
     private List<SubError> subErrorList;
 
-    public ErrorJsonResult(int code, String message) {
+    public ErrorJsonResult(int code, String errorCode) {
         super(code);
-        this.message = message;
+        this.errorCode = errorCode;
         subErrorList = new ArrayList<>();
     }
 
-    public void addSubError(String error) {
-        subErrorList.add(new SubError(error));
+    public void addSubError(String errorCode) {
+        subErrorList.add(new SubError(errorCode));
     }
 
-    public void addSubError(String error, String field) {
-        subErrorList.add(new SubError(error, field));
+    public void addSubError(String[] errorCodes, String field) {
+        subErrorList.add(new SubError(errorCodes, field));
     }
 
     private class SubError {
 
-        private final String error;
+        private final String errorCode;
+        private final String[] errorCodes;
         private final String field;
 
-        public SubError(String error) {
-            this.error = error;
-            this.field = "";
+        public SubError(String errorCode) {
+            this.errorCode = errorCode;
+            this.field = null;
+            this.errorCodes = null;
         }
 
-        public SubError(String error, String field) {
-            this.error = error;
+        public SubError(String[] errorCodes, String field) {
+            this.errorCode = null;
             this.field = field;
+            this.errorCodes = errorCodes;
         }
 
         public ObjectNode toJson() {
             ObjectMapper mapper = new ObjectMapper();
 
             ObjectNode errorData = mapper.createObjectNode();
-            errorData.put("field", field);
-            errorData.put("error", error);
+            if(field != null) {
+                errorData.put("field", field);
+                ArrayNode subErrorCodeArray = mapper.createArrayNode();
+                for(String errorCode: errorCodes) {
+                    subErrorCodeArray.add(errorCode);
+                }
+                errorData.set("errors", subErrorCodeArray);
+            } else {
+                errorData.put("error", errorCode);
+            }
 
             return errorData;
         }
@@ -56,14 +67,14 @@ public class ErrorJsonResult extends AbstractJsonResult {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode errorObject = mapper.createObjectNode();
-        errorObject.put("message", message);
+        errorObject.put("errorCode", errorCode);
         // Create sub-error list
         if(subErrorList.size() > 0) {
-            ArrayNode subErrorData = mapper.createArrayNode();
+            ArrayNode subErrorDataArray = mapper.createArrayNode();
             for (SubError subError : subErrorList) {
-                subErrorData.add(subError.toJson());
+                subErrorDataArray.add(subError.toJson());
             }
-            errorObject.set("errors", subErrorData);
+            errorObject.set("errors", subErrorDataArray);
         }
         // Create root
         ObjectNode resultObject = super.toJson();
