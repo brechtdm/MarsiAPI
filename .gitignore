@@ -10,3 +10,14 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Java play
+logs
+target
+/code/.idea
+/code/.idea_modules
+/code/.classpath
+/code/.project
+/code/.settings
+/code/RUNNING_PID
+
