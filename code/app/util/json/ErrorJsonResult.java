@@ -38,11 +38,10 @@ public class ErrorJsonResult implements JsonResult {
     }
 
     @Override
-    public JsonNode toJson() {
+    public ObjectNode toJson() {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode errorData = mapper.createObjectNode();
-        errorData.put("code", code);
         errorData.put("message", message);
         // Add extendedHelper only if it is filled in
         if(extendedHelper != null && !extendedHelper.isEmpty()) {
@@ -63,10 +62,11 @@ public class ErrorJsonResult implements JsonResult {
             errorData.set("errors", subErrorData);
         }
         // Create root
-        JsonNode errorObject = mapper.createObjectNode();
-        errorData.put("apiVersion", apiVersion);
-        errorData.set("errors", errorData);
+        ObjectNode errorObject = mapper.createObjectNode();
+        errorObject.put("apiVersion", apiVersion);
+        errorObject.put("code", code);
+        errorObject.set("errors", errorData);
 
-        return errorData;
+        return errorObject;
     }
 }
