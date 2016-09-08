@@ -4,16 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import java.util.ArrayList;
 import java.util.List;
+import util.ConfigurationHelper;
 
 public class ErrorJsonResult implements JsonResult {
 
-    private static final String ERROR_ROOT_NODE = "error";
-
-    private int code;
-    private String message;
+    private final String apiVersion;
+    private final int code;
+    private final String message;
     private String extendedHelper;
     private String sendReport;
     private List<String> subErrorList;
@@ -22,6 +21,8 @@ public class ErrorJsonResult implements JsonResult {
         this.code = code;
         this.message = message;
         subErrorList = new ArrayList<>();
+        // API version is defined in application.conf
+        apiVersion = ConfigurationHelper.getConfigurationString("app.version");
     }
 
     public void setExtendedHelper(String extendedHelper) {
@@ -63,7 +64,8 @@ public class ErrorJsonResult implements JsonResult {
         }
         // Create root
         JsonNode errorObject = mapper.createObjectNode();
-        errorData.set(ERROR_ROOT_NODE, errorData);
+        errorData.put("apiVersion", apiVersion);
+        errorData.set("errors", errorData);
 
         return errorData;
     }
