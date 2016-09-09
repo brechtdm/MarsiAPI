@@ -1,4 +1,4 @@
-package controllers.user.forms.UserAccount;
+package controllers.user.forms.useraccount;
 
 import models.user.UserAccount;
 import play.data.validation.Constraints;
