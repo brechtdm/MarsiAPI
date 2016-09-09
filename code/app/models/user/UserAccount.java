@@ -15,7 +15,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 @Entity
 @Table(name="userAccount")
-@JsonRootName("user_account")
+@JsonRootName("userAccount")
 public class UserAccount extends Model {
 
     public static final Finder<Long, UserAccount> FIND = new Finder<>(UserAccount.class);

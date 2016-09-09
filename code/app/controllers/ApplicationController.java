@@ -9,7 +9,7 @@ import static play.mvc.Results.ok;
 public class ApplicationController {
 
     public Result index() {
-        DataJsonResult result = new DataJsonResult(ResultCode.ok, "APPLICATION_ONLINE");
+        DataJsonResult result = new DataJsonResult(ResultCode.OK, "APPLICATION_ONLINE");
         return ok(result.toJson());
     }
 }

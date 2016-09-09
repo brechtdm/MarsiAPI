@@ -16,5 +16,6 @@ libraryDependencies ++= Seq(
   "org.mindrot" % "jbcrypt" % "0.3m",
   "org.jsoup" % "jsoup" % "1.8.3",
   "commons-validator" % "commons-validator" % "1.5.0",
-  "org.passay" % "passay" % "1.1.0"
+  "org.passay" % "passay" % "1.1.0",
+  "com.typesafe.play" % "play-mailer_2.11" % "5.0.0-M1"
 )

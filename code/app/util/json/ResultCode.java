@@ -5,7 +5,8 @@ package util.json;
  */
 public enum ResultCode {
 
-    ok(200);
+    OK(200),
+    NOT_FOUND(404);
 
     private int code;
 

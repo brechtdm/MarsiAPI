@@ -45,4 +45,8 @@ public class CreateForm {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public UserAccount getUserAccount() {
+        return new UserAccount(email, username, password);
+    }
 }

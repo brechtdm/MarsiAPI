@@ -6,20 +6,21 @@ import util.validators.UserConstraints;
 /**
  * Created by brecht on 9/9/16.
  */
-public class PasswordUpdateForm {
+public class PasswordResetForm {
+
     @Constraints.Required
-    private String password;
+    private String token;
 
     @Constraints.Required
     @UserConstraints.PasswordPattern
     private String newPassword;
 
-    public String getPassword() {
-        return password;
+    public String getToken() {
+        return token;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getNewPassword() {

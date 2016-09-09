@@ -20,6 +20,7 @@ public class DataJsonResult extends AbstractJsonResult {
         this.dataItems = null;
     }
 
+    // TODO change kind to annotation
     public DataJsonResult(ResultCode code, String kind, ObjectNode self) {
         super(code);
         this.kind = kind;
