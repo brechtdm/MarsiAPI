@@ -14,5 +14,7 @@ libraryDependencies ++= Seq(
 
   "org.postgresql" % "postgresql" % "9.4-1202-jdbc42",
   "org.mindrot" % "jbcrypt" % "0.3m",
-  "org.jsoup" % "jsoup" % "1.8.3"
+  "org.jsoup" % "jsoup" % "1.8.3",
+  "commons-validator" % "commons-validator" % "1.5.0",
+  "org.passay" % "passay" % "1.1.0"
 )
