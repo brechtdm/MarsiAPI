@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.user.forms.useraccount.CreateForm;
+import controllers.user.forms.useraccount.PasswordUpdateForm;
 import models.user.UserAccount;
 import org.apache.commons.mail.EmailException;
 import play.data.Form;
@@ -12,8 +13,8 @@ import play.libs.Json;
 import play.libs.mailer.Email;
 import play.libs.mailer.MailerClient;
 import play.mvc.BodyParser;
+import play.mvc.Controller;
 import play.mvc.Result;
-import util.ConfigurationHelper;
 import util.json.InvalidJsonException;
 import util.json.JsonHelper;
 import util.json.ResultCode;
@@ -29,7 +30,7 @@ import java.util.List;
 import static play.mvc.Controller.request;
 import static play.mvc.Results.*;
 
-public class UserAccountController {
+public class UserAccountController extends Controller {
 
     @Inject
     MailerClient mailerClient;
@@ -116,7 +117,7 @@ public class UserAccountController {
         }
     }
 
-    public Result validateRegistrationKey(Long id, String registrationKey) {
+    public Result applyRegistrationKey(Long id, String registrationKey) {
         UserAccount user = UserAccount.findById(id);
 
         // Check if user exists
@@ -216,7 +217,7 @@ public class UserAccountController {
     //region DELETE
 
     public Result deleteCurrentUser() {
-        /*User userToDelete = SecurityController.getUser();
+        /*UserAccount userToDelete = SecurityController.getUser();
         if(userToDelete == null) {
             return notFound();
         }
@@ -226,27 +227,23 @@ public class UserAccountController {
     }
 
     public Result delete(Long id) {
-        /*User userToDelete = User.findById(id);
+        UserAccount userToDelete = UserAccount.findById(id);
         if(userToDelete == null) {
             return notFound();
         }
 
-        boolean isSuperAdmin = UserRole.findByUser(SecurityController.getUser()).contains(UserRole.Role.SUPER_ADMIN);
+        /*boolean isSuperAdmin = UserRole.findByUser(SecurityController.getUser()).contains(UserRole.Role.SUPER_ADMIN);
         boolean userToDeleteIsAdmin = UserRole.isAdmin(userToDelete);
 
-        if(userToDeleteIsAdmin) {
-            if(isSuperAdmin) {
-                userToDelete.delete();
-                return ok();
-            }
-
+        if(userToDeleteIsAdmin && !isSuperAdmin) {
             return forbidden();
         } else {
             userToDelete.delete();
             return ok();
-        }
-        */
-        return null;
+        }*/
+
+        userToDelete.delete();
+        return ok();
     }
 
     //endregion
@@ -256,9 +253,76 @@ public class UserAccountController {
     //region UPDATE
 
     // Update password
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result updatePassword() {
+        JsonNode body = request().body().asJson();
+
+        try {
+            JsonNode strippedBody = JsonHelper.fetchFormData(body, UserAccount.class);
+            Form<PasswordUpdateForm> filledUserForm = formFactory.form(PasswordUpdateForm.class).bind(strippedBody);
+
+            // Return bad request if validation failed
+            if (filledUserForm.hasErrors()) {
+                ObjectNode errors = (ObjectNode) filledUserForm.errorsAsJson();
+                ErrorJsonResult result = new ErrorJsonResult(ResultCode.BAD_REQUEST, "INVALID_JSON");
+
+                // TODO to controller helper
+                ObjectMapper mapper = new ObjectMapper();
+                Iterator<String> errorIterator = errors.fieldNames();
+                while(errorIterator.hasNext()) {
+                    String error = errorIterator.next();
+                    // Create sub-error list
+                    List<String> subErrorList = new ArrayList<>();
+                    errors.get(error).forEach(e -> subErrorList.add(e.asText()));
+                    // Add sub-error list to result
+                    result.addSubError(subErrorList.toArray(new String[subErrorList.size()]), error);
+                }
+
+                return badRequest(result.toJson());
+            }
+
+            // Form does not contain errors, so we can update the user
+            /*UserAccount updatedUserAccount = filledUserForm.get().getUserAccount();
+            if(updatedUserAccount == null) {
+                ErrorJsonResult result = new ErrorJsonResult(ResultCode.NOT_FOUND, "USER_NOT_FOUND");
+                return notFound(result.toJson());
+            }
+
+            updatedUserAccount.setPassword(filledUserForm.data().get("newPassword"));
+            updatedUserAccount.save();
+
+
+            // Return the saved user
+            DataJsonResult result = new DataJsonResult(ResultCode.CREATED, "userAccount", (ObjectNode) Json.toJson(createdUserAccount));
+            return created(result.toJson());*/
+            return ok();
+        } catch(InvalidJsonException ex) {
+            ErrorJsonResult result = new ErrorJsonResult(ResultCode.BAD_REQUEST, "INVALID_JSON");
+            return badRequest(result.toJson());
+        }
+    }
+
+    // Send password reset key
+    public Result requestPasswordReset() {
+        return ok();
+    }
     // Reset password
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result applyPasswordReset() {
+        return ok();
+    }
+
     // Update username
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result updateUsername() {
+        return ok();
+    }
+
     // Update email
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result updateEmail() {
+        return ok();
+    }
 
     //endregion
     //================================================================================
