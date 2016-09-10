@@ -19,7 +19,8 @@ public class JsonHelper {
         JsonRootName annotation = (JsonRootName) clazz.getAnnotation(JsonRootName.class);
         String kindElement = annotation.value();
         if(!dataNode.get("kind").equals(kindElement)) {
-            throw new InvalidJsonException("Invalid JSON: no valid \"kind\" element (\"" + annotation.value() + "\" does not equals" + dataNode.get("kind") + ")");
+            throw new InvalidJsonException("Invalid JSON: no valid \"kind\" element " +
+                    "(\"" + annotation.value() + "\" does not equals" + dataNode.get("kind") + ")");
         }
         // Check if "form" node is available
         JsonNode formDataNode = dataNode.get("form");

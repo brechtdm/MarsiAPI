@@ -4,10 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.user.forms.useraccount.CreateForm;
 import models.user.UserAccount;
-import org.h2.engine.User;
+import org.apache.commons.mail.EmailException;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
+import play.libs.mailer.Email;
 import play.libs.mailer.MailerClient;
 import play.mvc.BodyParser;
 import play.mvc.Result;
@@ -65,7 +66,6 @@ public class UserAccountController {
     public Result create() {
         JsonNode body = request().body().asJson();
 
-
         try {
             JsonNode strippedBody;
             strippedBody = JsonHelper.fetchFormData(body, UserAccount.class);
@@ -73,29 +73,121 @@ public class UserAccountController {
 
             // Return bad request if validation failed
             if (filledUserForm.hasErrors()) {
+                System.out.println(filledUserForm.errorsAsJson());
                 return badRequest(filledUserForm.errorsAsJson());
             }
 
             // Form does not contain errors, so we can create the user
-            UserAccount createdUser = filledUserForm.get().getUserAccount();
-            createdUser.save();
+            UserAccount createdUserAccount = filledUserForm.get().getUserAccount();
+            createdUserAccount.save();
 
             try {
-                sendRegistrationKey(createdUser);
+                sendRegistrationKey(createdUserAccount);
             } catch (EmailException e) {
-                return internalServerError();
+                ErrorJsonResult result = new ErrorJsonResult(ResultCode.INTERNAL_SERVER_ERROR, "MAIL_FAILED");
+                return internalServerError(result.toJson());
             }
 
             // Return the saved user
-            return created(JsonHelper.createJsonNode(createdUser, User.class));
+            DataJsonResult result = new DataJsonResult(ResultCode.CREATED, "userAccount", (ObjectNode) Json.toJson(createdUserAccount));
+            return created(result.toJson());
         } catch(InvalidJsonException ex) {
             return badRequest();
         }
-        return null;
     }
 
-    // Validate registrationKey
-    // Resend registrationKey
+    public Result validateRegistrationKey(Long id, String registrationKey) {
+        UserAccount user = UserAccount.findById(id);
+
+        // Check if user exists
+        if(user == null) {
+            ErrorJsonResult result = new ErrorJsonResult(ResultCode.NOT_FOUND, "USER_NOT_FOUND");
+            return notFound(result.toJson());
+        }
+
+        // Check if registration key is used
+        if(user.getRegistrationKey() == null) {
+            ErrorJsonResult result = new ErrorJsonResult(ResultCode.BAD_REQUEST, "REGISTRATION_KEY_USED");
+            return badRequest(result.toJson());
+        }
+
+        // Check if registration key is valid
+        if(!user.getRegistrationKey().equals(registrationKey)) {
+            ErrorJsonResult result = new ErrorJsonResult(ResultCode.BAD_REQUEST, "REGISTRATION_KEY_INVALID");
+            return badRequest(result.toJson());
+        }
+
+        // Check if registration key is expired
+        if(user.isRegistrationKeyExpired()) {
+            user.createRegistrationKey();
+            user.save();
+
+            try {
+                sendRegistrationKey(user);
+            } catch (EmailException e) {
+                ErrorJsonResult result = new ErrorJsonResult(ResultCode.INTERNAL_SERVER_ERROR, "MAIL_FAILED");
+                return internalServerError(result.toJson());
+            }
+
+            ErrorJsonResult result = new ErrorJsonResult(ResultCode.BAD_REQUEST, "REGISTRATION_KEY_EXPIRED");
+            return badRequest(result.toJson());
+        }
+
+        user.destroyRegistrationKey();
+        user.save();
+
+        // TODO set new role (MEMBER role)
+
+        DataJsonResult result = new DataJsonResult(ResultCode.OK, "REGISTRATION_KEY_VALIDATED");
+        return ok(result.toJson());
+    }
+
+    // TODO change id to something else?
+    public Result resendRegistrationKey(Long id) {
+        try {
+            UserAccount user = UserAccount.findById(id);
+
+            if(user == null) {
+                ErrorJsonResult result = new ErrorJsonResult(ResultCode.NOT_FOUND, "USER_NOT_FOUND");
+                return notFound(result.toJson());
+            }
+
+            sendRegistrationKey(user);
+
+            DataJsonResult result = new DataJsonResult(ResultCode.OK, "REGISTRATION_KEY_MAIL_RESEND");
+            return ok(result.toJson());
+        } catch (EmailException e) {
+            ErrorJsonResult result = new ErrorJsonResult(ResultCode.INTERNAL_SERVER_ERROR, "MAIL_FAILED");
+            return internalServerError(result.toJson());
+        }
+    }
+
+    private void sendRegistrationKey(UserAccount userAccount) throws EmailException {
+        String url = new StringBuilder()
+                .append("http://localhost:9000/users/")
+                .append(userAccount.getId())
+                .append("/register?regKey=")
+                .append(userAccount.getRegistrationKey())
+                .toString();
+
+        String bodyText = url;
+        String bodyHtml = url;
+
+        String subject = "Registration to Marsi";
+        String to = userAccount.getEmail();
+        String from = "Marsi <noreply@marsi.com>";
+
+        Email email = new Email()
+                .setSubject(subject)
+                .setFrom(from)
+                .addTo(to)
+                .setBodyText(bodyText)
+                .setBodyHtml(bodyHtml);
+        String id = mailerClient.send(email);
+
+        System.out.println("REGISTRATION KEY URL: " + url + "\n"
+                + "REGISTRATION KEY: " + userAccount.getRegistrationKey());
+    }
 
     //endregion
     //================================================================================
