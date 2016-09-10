@@ -10,8 +10,10 @@ import java.util.Date;
 import java.util.UUID;
 
 import models.ExpirationTimeHelper;
+import org.apache.commons.mail.EmailException;
 import org.jsoup.Jsoup;
 import org.mindrot.jbcrypt.BCrypt;
+import util.exceptions.login.UninvalidatedRegistrationKeyException;
 
 @Entity
 @Table(name="userAccount")
@@ -135,6 +137,43 @@ public class UserAccount extends Model {
         return BCrypt.checkpw(password, bcryptPassword);
     }
 
+    //================================================================================
+    //region Authentication methods
+
+    public static UserAccount authenticateWithEmail(String email, String password)
+            throws UninvalidatedRegistrationKeyException, EmailException {
+        UserAccount user = findByEmail(email);
+        return authenticate(user, password);
+    }
+
+    public static UserAccount authenticateWithUsername(String username, String password)
+            throws UninvalidatedRegistrationKeyException, EmailException {
+        UserAccount user = findByUsername(username);
+        return authenticate(user, password);
+    }
+
+    private static UserAccount authenticate(UserAccount user, String password)
+            throws UninvalidatedRegistrationKeyException, EmailException {
+
+        if(user != null) {
+            if(user.getRegistrationKey() != null) {
+                throw new UninvalidatedRegistrationKeyException();
+            }
+
+            if (user != null && user.checkPassword(password)) {
+                return user;
+            }
+        }
+
+        return null;
+    }
+
+    //endregion
+    //================================================================================
+
+    //================================================================================
+    //region Query methods
+
     public static UserAccount findByEmail(String emailAddress) {
         try {
             return FIND.where().eq("email", emailAddress).findUnique();
@@ -158,4 +197,7 @@ public class UserAccount extends Model {
             return null;
         }
     }
+
+    //endregion
+    //================================================================================
 }
