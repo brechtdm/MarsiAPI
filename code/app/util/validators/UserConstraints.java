@@ -50,7 +50,7 @@ public class UserConstraints {
         }
 
         public F.Tuple<String, Object[]> getErrorMessageKey() {
-            return Tuple(message, new Object[] { "HELLO WORLD!" });
+            return Tuple(message, new Object[] {  });
         }
     }
 
@@ -83,7 +83,7 @@ public class UserConstraints {
         }
 
         public F.Tuple<String, Object[]> getErrorMessageKey() {
-            return Tuple(message, new Object[] { "HELLO WORLD!" });
+            return Tuple(message, new Object[] {  });
         }
     }
 
@@ -116,7 +116,7 @@ public class UserConstraints {
         }
 
         public F.Tuple<String, Object[]> getErrorMessageKey() {
-            return Tuple(message, new Object[] { "HELLO WORLD!" });
+            return Tuple(message, new Object[] {  });
         }
     }
 
@@ -227,7 +227,7 @@ public class UserConstraints {
         }
 
         public F.Tuple<String, Object[]> getErrorMessageKey() {
-            return Tuple(message, new Object[] { "HELLO WORLD!" });
+            return Tuple(message, new Object[] {  });
         }
     }
 

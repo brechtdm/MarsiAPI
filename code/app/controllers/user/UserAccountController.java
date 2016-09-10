@@ -13,6 +13,7 @@ import play.libs.mailer.Email;
 import play.libs.mailer.MailerClient;
 import play.mvc.BodyParser;
 import play.mvc.Result;
+import util.ConfigurationHelper;
 import util.json.InvalidJsonException;
 import util.json.JsonHelper;
 import util.json.ResultCode;
@@ -97,7 +98,7 @@ public class UserAccountController {
 
             // Form does not contain errors, so we can create the user
             UserAccount createdUserAccount = filledUserForm.get().getUserAccount();
-            //createdUserAccount.save();
+            createdUserAccount.save();
 
             try {
                 sendRegistrationKey(createdUserAccount);

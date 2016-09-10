@@ -1,0 +1,5 @@
+error.required=ERROR_REQUIRED
+error.pattern=ERROR_PATTERN
+error.password=ERROR_PASSWORD
+error.invalid = ERROR_INVALID
+error.unique = ERROR_UNIQUE

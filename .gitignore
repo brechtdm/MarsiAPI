@@ -21,3 +21,5 @@ target
 /code/.settings
 /code/RUNNING_PID
 
+/code/conf/smtp.conf
+
