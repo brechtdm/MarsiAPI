@@ -139,7 +139,6 @@ public class UserAccount extends Model {
         try {
             return FIND.where().eq("email", emailAddress).findUnique();
         } catch (Exception e) {
-            play.Logger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -148,7 +147,6 @@ public class UserAccount extends Model {
         try {
             return FIND.where().eq("username", username).findUnique();
         } catch (Exception e) {
-            play.Logger.error(e.getMessage(), e);
             return null;
         }
     }
@@ -157,7 +155,6 @@ public class UserAccount extends Model {
         try  {
             return FIND.where().eq("id", id).findUnique();
         } catch (Exception e) {
-            play.Logger.error(e.getMessage(), e);
             return null;
         }
     }

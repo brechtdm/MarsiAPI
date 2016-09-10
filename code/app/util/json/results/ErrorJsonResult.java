@@ -69,7 +69,7 @@ public class ErrorJsonResult extends AbstractJsonResult {
         ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode errorObject = mapper.createObjectNode();
-        errorObject.put("errorCode", errorCode);
+        errorObject.put("error", errorCode);
         // Create sub-error list
         if(subErrorList.size() > 0) {
             ArrayNode subErrorDataArray = mapper.createArrayNode();
@@ -82,6 +82,6 @@ public class ErrorJsonResult extends AbstractJsonResult {
         ObjectNode resultObject = super.toJson();
         resultObject.set("errors", errorObject);
 
-        return errorObject;
+        return resultObject;
     }
 }

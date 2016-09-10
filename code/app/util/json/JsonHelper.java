@@ -18,12 +18,12 @@ public class JsonHelper {
         // Check if "kind" value is valid
         JsonRootName annotation = (JsonRootName) clazz.getAnnotation(JsonRootName.class);
         String kindElement = annotation.value();
-        if(!dataNode.get("kind").equals(kindElement)) {
+        if(!dataNode.get("kind").asText().equals(kindElement)) {
             throw new InvalidJsonException("Invalid JSON: no valid \"kind\" element " +
                     "(\"" + annotation.value() + "\" does not equals" + dataNode.get("kind") + ")");
         }
         // Check if "form" node is available
-        JsonNode formDataNode = dataNode.get("form");
+        JsonNode formDataNode = dataNode.get("formData");
         if(formDataNode == null) {
             throw new InvalidJsonException("Invalid JSON: no valid \"form\" node");
         }

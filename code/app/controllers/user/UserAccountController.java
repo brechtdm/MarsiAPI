@@ -1,6 +1,7 @@
 package controllers.user;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.user.forms.useraccount.CreateForm;
 import models.user.UserAccount;
@@ -19,6 +20,10 @@ import util.json.results.DataJsonResult;
 import util.json.results.ErrorJsonResult;
 
 import javax.inject.Inject;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static play.mvc.Controller.request;
 import static play.mvc.Results.*;
@@ -67,19 +72,32 @@ public class UserAccountController {
         JsonNode body = request().body().asJson();
 
         try {
-            JsonNode strippedBody;
-            strippedBody = JsonHelper.fetchFormData(body, UserAccount.class);
+            JsonNode strippedBody = JsonHelper.fetchFormData(body, UserAccount.class);
             Form<CreateForm> filledUserForm = formFactory.form(CreateForm.class).bind(strippedBody);
 
             // Return bad request if validation failed
             if (filledUserForm.hasErrors()) {
-                System.out.println(filledUserForm.errorsAsJson());
-                return badRequest(filledUserForm.errorsAsJson());
+                ObjectNode errors = (ObjectNode) filledUserForm.errorsAsJson();
+                ErrorJsonResult result = new ErrorJsonResult(ResultCode.BAD_REQUEST, "INVALID_JSON");
+
+                // TODO to controller helper
+                ObjectMapper mapper = new ObjectMapper();
+                Iterator<String> errorIterator = errors.fieldNames();
+                while(errorIterator.hasNext()) {
+                    String error = errorIterator.next();
+                    // Create sub-error list
+                    List<String> subErrorList = new ArrayList<>();
+                    errors.get(error).forEach(e -> subErrorList.add(e.asText()));
+                    // Add sub-error list to result
+                    result.addSubError(subErrorList.toArray(new String[subErrorList.size()]), error);
+                }
+
+                return badRequest(result.toJson());
             }
 
             // Form does not contain errors, so we can create the user
             UserAccount createdUserAccount = filledUserForm.get().getUserAccount();
-            createdUserAccount.save();
+            //createdUserAccount.save();
 
             try {
                 sendRegistrationKey(createdUserAccount);
@@ -92,7 +110,8 @@ public class UserAccountController {
             DataJsonResult result = new DataJsonResult(ResultCode.CREATED, "userAccount", (ObjectNode) Json.toJson(createdUserAccount));
             return created(result.toJson());
         } catch(InvalidJsonException ex) {
-            return badRequest();
+            ErrorJsonResult result = new ErrorJsonResult(ResultCode.BAD_REQUEST, "INVALID_JSON");
+            return badRequest(result.toJson());
         }
     }
 

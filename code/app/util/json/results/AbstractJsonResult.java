@@ -22,7 +22,7 @@ public abstract class AbstractJsonResult implements JsonResult {
 
         ObjectNode resultObject = mapper.createObjectNode();
         resultObject.put("apiVersion", apiVersion);
-        resultObject.put("code", code.getCode());
+        resultObject.put("statusCode", code.getCode());
 
         return resultObject;
     }
